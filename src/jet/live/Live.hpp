@@ -30,7 +30,7 @@ namespace jet
          * Does nothing if there's no changes.
          * Call it only when you're done editing your code.
          */
-        void tryReload();
+        bool tryReload();
 
         /**
          * Runloop method, should be periodically called by the application.

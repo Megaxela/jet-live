@@ -97,7 +97,7 @@ namespace jet
         std::function<void(int, const std::string&, const std::string&)>&& finishCallback)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        assert(!m_shouldLink && !m_runningLinkTask);
+//        assert(!m_shouldLink && !m_runningLinkTask);
 
         if (m_workingDirectory.empty()) {
             m_workingDirectory = cu.compilationDirStr;
@@ -125,16 +125,24 @@ namespace jet
         m_pendingCompilationTasks.push_back(std::move(pendingTask));
     }
 
-    void Compiler::link(
-        std::function<void(int, const std::string&, const std::vector<std::string>&, const std::string&)>&&
-            finishCallback)
+    bool Compiler::link(
+        std::function<void(int, const std::string &, const std::vector<std::string> &, const std::string &)> &&
+        finishCallback)
     {
+        if (m_shouldLink || m_pendingLinkingFinishCallback != nullptr ||
+            m_runningLinkTask)
+        {
+            return false;
+        }
+
         if (!m_runningCompilationTasks.empty() || m_runningLinkTask) {
             m_shouldLink = true;
             m_pendingLinkingFinishCallback = std::move(finishCallback);
         } else {
-            doLink(std::move(finishCallback));
+            return doLink(std::move(finishCallback));
         }
+
+        return true;
     }
 
     void Compiler::remove(const std::string& compilationUnitPath)
@@ -191,13 +199,13 @@ namespace jet
         m_runningCompilationTasks[cu.sourceFilePath] = std::move(task);
     }
 
-    void Compiler::doLink(
-        std::function<void(int, const std::string&, const std::vector<std::string>&, const std::string&)>&&
-            finishCallback)
+    bool Compiler::doLink(
+        std::function<void(int, const std::string &, const std::vector<std::string> &, const std::string &)> &&
+        finishCallback)
     {
         if (m_readyCompilationUnits.empty()) {
             m_context->listener->onLog(LogSeverity::kInfo, "Nothing to reload.");
-            return;
+            return false;
         }
         m_context->listener->onLog(LogSeverity::kInfo, "Linking...");
 
@@ -221,5 +229,7 @@ namespace jet
             });
         assert(!m_runningLinkTask);
         m_runningLinkTask = jet::make_unique<Task>(std::move(task));
+
+        return true;
     }
 }

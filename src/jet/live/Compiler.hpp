@@ -43,8 +43,9 @@ namespace jet
          * and then link newly compiled object files into shared library.
          * \param finishCallback Callback which will be called after linkage process finish.
          */
-        void link(std::function<void(int, const std::string&, const std::vector<std::string>&, const std::string&)>&&
-                finishCallback);
+        bool link(
+            std::function<void(int, const std::string &, const std::vector<std::string> &, const std::string &)> &&
+            finishCallback);
 
         /**
          * Removes given compilation unit from the compilation queue and ready obj files list.
@@ -94,7 +95,8 @@ namespace jet
 
         void doCompile(const CompilationUnit& cu,
             std::function<void(int, const std::string&, const std::string&)>&& finishCallback);
-        void doLink(std::function<void(int, const std::string&, const std::vector<std::string>&, const std::string&)>&&
-                finishCallback);
+        bool doLink(
+            std::function<void(int, const std::string &, const std::vector<std::string> &, const std::string &)> &&
+            finishCallback);
     };
 }

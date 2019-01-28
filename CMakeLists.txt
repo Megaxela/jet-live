@@ -247,6 +247,7 @@ endif()
 
 if (JET_LIVE_BUILD_EXAMPLE)
   add_subdirectory(example)
+  add_subdirectory(example_2)
 endif()
 
 if (JET_LIVE_BUILD_TESTS)

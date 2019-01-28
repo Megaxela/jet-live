@@ -140,10 +140,10 @@ namespace jet
             });
     }
 
-    void Live::tryReload()
+    bool Live::tryReload()
     {
         m_context->listener->onLog(LogSeverity::kInfo, "Trying to reload code...");
-        m_compiler->link([this](int status,
+        return m_compiler->link([this](int status,
                              const std::string& libPath,
                              const std::vector<std::string>& objFilePaths,
                              const std::string&) {
